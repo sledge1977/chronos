@@ -1,0 +1,24 @@
+<service>
+  <id>ChronosTimeService</id>
+  <name>Chronos Zeitserver</name>
+  <description>Stellt die Chronos-Webseite und einen lokalen NTP-Zeitserver bereit.</description>
+
+  <executable>%BASE%\chronos.exe</executable>
+  <workingdirectory>%BASE%</workingdirectory>
+
+  <env name="PORT" value="8080"/>
+  <env name="NTP_ADDR" value=":123"/>
+  <env name="NTP_STRATUM" value="15"/>
+
+  <startmode>Automatic</startmode>
+  <delayedAutoStart>true</delayedAutoStart>
+
+  <onfailure action="restart" delay="10 sec"/>
+  <onfailure action="restart" delay="30 sec"/>
+
+  <logpath>%BASE%\logs</logpath>
+  <log mode="roll-by-size">
+    <sizeThreshold>10240</sizeThreshold>
+    <keepFiles>8</keepFiles>
+  </log>
+</service>

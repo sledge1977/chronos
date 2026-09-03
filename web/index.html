@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Präzise Anzeige der lokalen Uhrzeit, UTC und Unix-Zeit.">
+  <title>Chronos // Zeitsystem</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="masthead">
+      <div>
+        <p class="eyebrow">CHRONOS / ZEITSYSTEM</p>
+        <h1>Systemzeit</h1>
+      </div>
+      <div class="sync-state" role="status">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="sync-label">Synchronisiere</span>
+      </div>
+    </header>
+
+    <section class="time-grid" aria-label="Aktuelle Zeitangaben">
+      <article class="time-card time-card--primary">
+        <div class="card-head">
+          <span>01</span>
+          <h2>Lokale Zeit</h2>
+        </div>
+        <time id="local-time" class="clock" datetime="">--:--:--</time>
+        <div class="card-meta">
+          <span id="local-date">Wird geladen</span>
+          <span id="local-zone">Lokale Zeitzone</span>
+        </div>
+      </article>
+
+      <article class="time-card">
+        <div class="card-head">
+          <span>02</span>
+          <h2>UTC</h2>
+        </div>
+        <time id="utc-time" class="clock" datetime="">--:--:--</time>
+        <div class="card-meta">
+          <span id="utc-date">Wird geladen</span>
+          <span>Koordinierte Weltzeit</span>
+        </div>
+      </article>
+
+      <article class="time-card time-card--unix">
+        <div class="card-head">
+          <span>03</span>
+          <h2>Unix-Zeit</h2>
+        </div>
+        <output id="unix-time" class="clock" aria-label="Unix-Zeit in Sekunden">----------</output>
+        <div class="card-meta">
+          <span>Sekunden seit 01.01.1970</span>
+          <span>POSIX / EPOCH</span>
+        </div>
+      </article>
+    </section>
+
+    <section class="ntp-monitor" aria-labelledby="ntp-heading">
+      <div class="monitor-head">
+        <div>
+          <p class="eyebrow">NETZWERK / UDP 123</p>
+          <h2 id="ntp-heading">NTP-Anfragen</h2>
+        </div>
+        <div id="monitor-state" class="monitor-state" role="status">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span>Live</span>
+        </div>
+      </div>
+
+      <div class="monitor-stats" aria-label="NTP-Statistik">
+        <div>
+          <span class="stat-label">Anfragen seit Start</span>
+          <strong id="request-total">0</strong>
+        </div>
+        <div>
+          <span class="stat-label">Clients im Log</span>
+          <strong id="client-total">0</strong>
+        </div>
+        <div>
+          <span class="stat-label">Server-Stratum</span>
+          <strong id="ntp-stratum">--</strong>
+        </div>
+      </div>
+
+      <div class="request-table-wrap">
+        <table class="request-table">
+          <thead>
+            <tr>
+              <th scope="col">Zeit</th>
+              <th scope="col">Client</th>
+              <th scope="col">Protokoll</th>
+              <th scope="col">Paket</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody id="request-rows">
+            <tr class="empty-row">
+              <td colspan="5">Noch keine NTP-Anfrage empfangen.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p id="retention-note" class="retention-note">Die letzten 200 Anfragen werden bis zum nächsten Dienststart gespeichert.</p>
+    </section>
+
+    <footer>
+      <span>REF: 1970-01-01T00:00:00Z</span>
+      <span id="precision">AUFLÖSUNG: 1 SEKUNDE</span>
+    </footer>
+  </main>
+</body>
+</html>
