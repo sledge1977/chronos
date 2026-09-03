@@ -15,17 +15,17 @@ $wrapperDownloadUrl = "https://github.com/winsw/winsw/releases/download/v2.12.0/
 $wrapperSHA256 = "05B82D46AD331CC16BDC00DE5C6332C1EF818DF8CEEFCD49C726553209B3A0DA"
 
 if (-not (Test-Path -LiteralPath (Join-Path $projectDirectory "chronos.exe"))) {
-    throw "chronos.exe fehlt. Zuerst das Go-Programm kompilieren."
+    throw "chronos.exe is missing. Build the Go program first."
 }
 
 if (-not (Test-Path -LiteralPath $sourceWrapper)) {
-    Write-Host "WinSW v2.12.0 wird von GitHub geladen ..."
+    Write-Host "Downloading WinSW v2.12.0 from GitHub ..."
     Invoke-WebRequest -Uri $wrapperDownloadUrl -OutFile $sourceWrapper
 }
 
 $downloadedHash = (Get-FileHash -LiteralPath $sourceWrapper -Algorithm SHA256).Hash
 if ($downloadedHash -ne $wrapperSHA256) {
-    throw "Die SHA-256-Prüfsumme des WinSW-Wrappers stimmt nicht. Erwartet: $wrapperSHA256, erhalten: $downloadedHash"
+    throw "The WinSW wrapper SHA-256 checksum does not match. Expected: $wrapperSHA256, received: $downloadedHash"
 }
 
 $existingService = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
@@ -45,12 +45,12 @@ Copy-Item -LiteralPath (Join-Path $PSScriptRoot "chronos-service.xml") -Destinat
 
 & $wrapper install
 if ($LASTEXITCODE -ne 0) {
-    throw "Installation des Dienstes ist fehlgeschlagen (Exitcode $LASTEXITCODE)."
+    throw "Service installation failed (exit code $LASTEXITCODE)."
 }
 
 & $wrapper start
 if ($LASTEXITCODE -ne 0) {
-    throw "Start des Dienstes ist fehlgeschlagen (Exitcode $LASTEXITCODE)."
+    throw "Service startup failed (exit code $LASTEXITCODE)."
 }
 
 if (-not (Get-NetFirewallRule -DisplayName $firewallRuleName -ErrorAction SilentlyContinue)) {

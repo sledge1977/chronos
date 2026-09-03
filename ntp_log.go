@@ -81,7 +81,7 @@ func (requestLog *ntpRequestLog) record(remoteAddress net.Addr, request []byte, 
 	}
 	requestLog.mutex.Unlock()
 
-	log.Printf("NTP-Anfrage von %s:%d: Version %d, Modus %d, %d Byte, %s", entry.ClientIP, entry.ClientPort, entry.Version, entry.Mode, entry.Bytes, entry.Result)
+	log.Printf("NTP request from %s:%d: version %d, mode %d, %d bytes, %s", entry.ClientIP, entry.ClientPort, entry.Version, entry.Mode, entry.Bytes, entry.Result)
 }
 
 func (requestLog *ntpRequestLog) snapshot(clock ntpClock) ntpRequestSnapshot {

@@ -1,7 +1,7 @@
 <service>
   <id>ChronosTimeService</id>
-  <name>Chronos Zeitserver</name>
-  <description>Stellt die Chronos-Webseite und einen lokalen NTP-Zeitserver bereit.</description>
+  <name>Chronos Time Server</name>
+  <description>Provides the Chronos website and a local NTP time server.</description>
 
   <executable>%BASE%\chronos.exe</executable>
   <workingdirectory>%BASE%</workingdirectory>

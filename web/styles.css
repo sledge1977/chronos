@@ -225,11 +225,11 @@ h1 {
   text-transform: uppercase;
 }
 
-.request-result--beantwortet {
+.request-result--answered {
   color: var(--accent);
 }
 
-.request-result--fehler {
+.request-result--error {
   color: #ff8a80;
 }
 

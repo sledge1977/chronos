@@ -22,14 +22,14 @@
   let lastRequestID = -1;
   let requestUpdateRunning = false;
 
-  const localTimeFormatter = new Intl.DateTimeFormat("de-DE", {
+  const localTimeFormatter = new Intl.DateTimeFormat("en-GB", {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
     hourCycle: "h23",
   });
 
-  const localDateFormatter = new Intl.DateTimeFormat("de-DE", {
+  const localDateFormatter = new Intl.DateTimeFormat("en-GB", {
     weekday: "long",
     day: "2-digit",
     month: "long",
@@ -65,11 +65,11 @@
       const requestFinished = Date.now();
       const estimatedClientTime = requestStarted + (requestFinished - requestStarted) / 2;
       serverOffset = data.unixMilliseconds - estimatedClientTime;
-      elements.syncLabel.textContent = "Server synchronisiert";
+      elements.syncLabel.textContent = "Server synchronized";
       elements.syncState.classList.remove("is-local");
     } catch {
       serverOffset = 0;
-      elements.syncLabel.textContent = "Lokale Systemzeit";
+      elements.syncLabel.textContent = "Local system time";
       elements.syncState.classList.add("is-local");
     }
 
@@ -92,12 +92,12 @@
   }
 
   function renderNTPRequests(data) {
-    elements.requestTotal.textContent = data.total.toLocaleString("de-DE");
+    elements.requestTotal.textContent = data.total.toLocaleString("en-GB");
     elements.ntpStratum.textContent = String(data.stratum);
-    elements.retentionNote.textContent = `Die letzten ${data.capacity} Anfragen werden bis zum nächsten Dienststart gespeichert.`;
+    elements.retentionNote.textContent = `The latest ${data.capacity} requests are retained until the next service restart.`;
 
     const clients = new Set(data.requests.map((request) => request.clientIp));
-    elements.clientTotal.textContent = clients.size.toLocaleString("de-DE");
+    elements.clientTotal.textContent = clients.size.toLocaleString("en-GB");
 
     const newestID = data.requests[0]?.id ?? 0;
     if (newestID === lastRequestID) {
@@ -108,7 +108,7 @@
     if (data.requests.length === 0) {
       const row = document.createElement("tr");
       row.className = "empty-row";
-      const cell = tableCell("Noch keine NTP-Anfrage empfangen.");
+      const cell = tableCell("No NTP requests received yet.");
       cell.colSpan = 5;
       row.append(cell);
       elements.requestRows.replaceChildren(row);
@@ -146,16 +146,16 @@
       elements.monitorState.lastElementChild.textContent = "Live";
     } catch {
       elements.monitorState.classList.add("is-offline");
-      elements.monitorState.lastElementChild.textContent = "Keine Verbindung";
+      elements.monitorState.lastElementChild.textContent = "Disconnected";
     } finally {
       requestUpdateRunning = false;
     }
   }
 
   try {
-    elements.localZone.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone || "Lokale Zeitzone";
+    elements.localZone.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone || "Local time zone";
   } catch {
-    elements.localZone.textContent = "Lokale Zeitzone";
+    elements.localZone.textContent = "Local time zone";
   }
 
   render();

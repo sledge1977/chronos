@@ -43,16 +43,16 @@ func serveNTP(connection net.PacketConn, clock ntpClock, requestLog *ntpRequestL
 		request := append([]byte(nil), buffer[:length]...)
 		response, ok := createNTPResponse(request, receivedAt, time.Now().UTC(), clock)
 		if !ok {
-			requestLog.record(remoteAddress, request, receivedAt, "ignoriert")
+			requestLog.record(remoteAddress, request, receivedAt, "ignored")
 			continue
 		}
 
 		if _, err := connection.WriteTo(response, remoteAddress); err != nil {
-			requestLog.record(remoteAddress, request, receivedAt, "fehler")
-			log.Printf("NTP-Antwort an %s fehlgeschlagen: %v", remoteAddress, err)
+			requestLog.record(remoteAddress, request, receivedAt, "error")
+			log.Printf("NTP response to %s failed: %v", remoteAddress, err)
 			continue
 		}
-		requestLog.record(remoteAddress, request, receivedAt, "beantwortet")
+		requestLog.record(remoteAddress, request, receivedAt, "answered")
 	}
 }
 
@@ -76,10 +76,10 @@ func createNTPResponse(request []byte, receivedAt, transmittedAt time.Time, cloc
 	}
 
 	response := make([]byte, ntpPacketSize)
-	response[0] = leapIndicator<<6 | version<<3 | 4 // LI, Version, Server-Modus
+	response[0] = leapIndicator<<6 | version<<3 | 4 // leap indicator, version, server mode
 	response[1] = clock.stratum
 	response[2] = request[2]
-	response[3] = 0xec // signierter NTP-Präzisionsexponent -20
+	response[3] = 0xec // signed NTP precision exponent -20
 	binary.BigEndian.PutUint32(response[8:12], rootDispersion)
 	copy(response[12:16], referenceID)
 	putNTPTimestamp(response[16:24], clock.referenceTime)
@@ -100,20 +100,20 @@ func putNTPTimestamp(destination []byte, timestamp time.Time) {
 func logNTPReachability(address net.Addr, clock ntpClock) {
 	udpAddress, ok := address.(*net.UDPAddr)
 	if !ok {
-		log.Printf("NTP-Server erreichbar unter %s", address)
+		log.Printf("NTP server is available at %s", address)
 		return
 	}
 
-	state := "synchronisiert"
+	state := "synchronized"
 	if !clock.synchronized() {
-		state = "nicht synchronisiert; Antworten werden mit LI=3 gesendet"
+		state = "not synchronized; responses use LI=3"
 	}
-	log.Printf("NTP-Server aktiv auf UDP-Port %d (Stratum %d, %s)", udpAddress.Port, clock.stratum, state)
+	log.Printf("NTP server active on UDP port %d (stratum %d, %s)", udpAddress.Port, clock.stratum, state)
 
 	for _, endpoint := range reachableNTPEndpoints(udpAddress) {
-		log.Printf("NTP erreichbar: %s", endpoint)
+		log.Printf("NTP available at: %s", endpoint)
 	}
-	log.Printf("NTP-Test unter Windows: w32tm /stripchart /computer:127.0.0.1 /dataonly /samples:5")
+	log.Printf("NTP test on Windows: w32tm /stripchart /computer:127.0.0.1 /dataonly /samples:5")
 }
 
 func reachableNTPEndpoints(boundAddress *net.UDPAddr) []string {

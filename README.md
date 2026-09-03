@@ -1,78 +1,86 @@
-# Chronos – Go-Zeitserver
+# Chronos — Go Time Server
 
-Ein kleiner Go-Webserver, der eine responsive Webseite mit lokaler Uhrzeit, UTC und Unix-Zeit ausliefert. Zusätzlich beantwortet das Programm NTPv3-/NTPv4-Anfragen über UDP. Die Webseite zeigt die letzten 200 NTP-Anfragen live an; der Gesamtzähler läuft bis zum nächsten Programmstart weiter. Alle Anfragen werden außerdem in das normale Service-Log geschrieben. Alle Webdateien werden beim Kompilieren in die Programmdatei eingebettet.
+Chronos is a small Go server that provides a responsive website displaying local time, UTC, and Unix time. It also answers NTPv3 and NTPv4 requests over UDP. The website shows the latest 200 NTP requests in real time, while a total counter tracks all requests since startup. Every request is also written to the regular service log. All web assets are embedded in the compiled executable.
 
-## Starten
+## Run
 
-Voraussetzung: Go 1.22 oder neuer.
+Requires Go 1.22 or newer.
 
 ```powershell
 go run .
 ```
 
-Danach im Browser öffnen: <http://localhost:8080>
+Then open <http://localhost:8080> in a browser.
 
-Beim Start gibt das Programm alle lokalen Adressen aus, unter denen der NTP-Server erreichbar ist. Standardmäßig verwendet er UDP-Port 123, beispielsweise `127.0.0.1:123/udp`.
+At startup, Chronos prints every local address at which the NTP server is available. It uses UDP port 123 by default, for example `127.0.0.1:123/udp`.
 
-Test unter Windows:
+Test it on Windows:
 
 ```powershell
 w32tm /stripchart /computer:127.0.0.1 /dataonly /samples:5
 ```
 
-Optional kann ein anderer Port gesetzt werden:
+Set a different web port if required:
 
 ```powershell
 $env:PORT = "9000"
 go run .
 ```
 
-Der NTP-Port kann ebenfalls geändert werden, zum Beispiel für einen Start ohne Administratorrechte oder wenn Port 123 bereits belegt ist:
+The NTP port can also be changed, for example when port 123 is already in use:
 
 ```powershell
 $env:NTP_ADDR = ":8123"
 go run .
 ```
 
-## Stratum und Synchronisationsstatus
+Note that many NTP clients only support the standard destination port 123.
 
-Ohne weitere Konfiguration arbeitet der NTP-Server bewusst als **nicht synchronisierte Uhr**: Er antwortet weiterhin, setzt aber gemäß NTP-Protokoll Stratum 16 und den Leap Indicator auf 3. Dadurch erkennen Clients, dass die Zeitquelle aktuell nicht als synchronisiert bestätigt ist.
+## Stratum and synchronization state
 
-Wenn die Uhr des Rechners nachweislich durch eine externe Zeitquelle synchronisiert wird, kann das zugehörige Stratum zwischen 1 und 15 angegeben werden:
+Without additional configuration, the NTP server deliberately operates as an **unsynchronized clock**. It continues to respond, but identifies itself with stratum 16 and sets the leap indicator to 3. This allows clients to recognize that the time source is not confirmed as synchronized.
+
+If the host clock is known to be synchronized by an external time source, set the corresponding stratum from 1 through 15:
 
 ```powershell
 $env:NTP_STRATUM = "3"
 go run .
 ```
 
-Das Programm verändert die Systemzeit nicht und behauptet deshalb ohne diese explizite Konfiguration keine Synchronisation.
+Chronos does not modify the system clock and therefore does not claim synchronization unless explicitly configured.
 
-## Endpunkte
+## HTTP endpoints
 
-- `/` – Webseite
-- `/api/time` – aktuelle Serverzeit als JSON
-- `/api/ntp/requests` – NTP-Anfragen und Serverstatus als JSON
-- `/healthz` – einfache Statusprüfung
+- `/` — website
+- `/api/time` — current server time as JSON
+- `/api/ntp/requests` — NTP request log and server state as JSON
+- `/healthz` — basic health check
 
-Der NTP-Dienst läuft unabhängig davon über UDP und nicht über einen HTTP-Endpunkt.
+The NTP service runs independently over UDP and is not exposed as an HTTP endpoint.
 
-## Als Windows-Dienst installieren
+## Install as a Windows service
 
-Die Dateien im Verzeichnis `service` richten Chronos mithilfe von WinSW als automatisch startenden Windows-Dienst ein. Die Ausgaben werden größenbasiert in `C:\Program Files\Chronos\logs` rotiert. Das Installationsskript lädt einen fehlenden WinSW-Wrapper aus dem offiziellen GitHub-Release, prüft dessen SHA-256-Prüfsumme und richtet außerdem die eingehende Firewallfreigabe für UDP-Port 123 ein.
+The files in `service` install Chronos as an automatically starting Windows service using WinSW. Output logs are rotated by size in `C:\Program Files\Chronos\logs`. When required, the installation script downloads the WinSW wrapper from its official GitHub release, verifies its SHA-256 checksum, and creates an inbound firewall rule for UDP port 123.
 
-Installation in einer PowerShell mit Administratorrechten:
+First build the executable:
+
+```powershell
+go build -o chronos.exe .
+```
+
+Then run the installation script from an elevated PowerShell session:
 
 ```powershell
 .\service\install-service.ps1
 ```
 
-Deinstallation:
+Remove the service:
 
 ```powershell
 .\service\uninstall-service.ps1
 ```
 
-Laufendes Protokoll anzeigen:
+Follow the live log:
 
 ```powershell
 Get-Content "C:\Program Files\Chronos\logs\chronos-service.err.log" -Encoding UTF8 -Wait

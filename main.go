@@ -25,7 +25,7 @@ func main() {
 
 	ntpConnection, err := net.ListenPacket("udp", ntpAddress)
 	if err != nil {
-		log.Fatalf("NTP-Server kann %s/udp nicht verwenden: %v", ntpAddress, err)
+		log.Fatalf("NTP server cannot use %s/udp: %v", ntpAddress, err)
 	}
 	defer ntpConnection.Close()
 
@@ -33,7 +33,7 @@ func main() {
 	requestLog := newNTPRequestLog(200)
 	go func() {
 		if err := serveNTP(ntpConnection, clock, requestLog); err != nil {
-			log.Fatalf("NTP-Server beendet: %v", err)
+			log.Fatalf("NTP server stopped: %v", err)
 		}
 	}()
 	logNTPReachability(ntpConnection.LocalAddr(), clock)
@@ -62,7 +62,7 @@ func main() {
 		IdleTimeout:       60 * time.Second,
 	}
 
-	log.Printf("Zeitserver läuft auf http://localhost:%s", port)
+	log.Printf("Time server is running at http://localhost:%s", port)
 	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal(err)
 	}
@@ -82,7 +82,7 @@ func configuredStratum(value string) (uint8, error) {
 
 	stratum, err := strconv.Atoi(value)
 	if err != nil || stratum < 1 || stratum > 16 {
-		return 0, errors.New("NTP_STRATUM muss eine ganze Zahl zwischen 1 und 16 sein")
+		return 0, errors.New("NTP_STRATUM must be an integer between 1 and 16")
 	}
 	return uint8(stratum), nil
 }
