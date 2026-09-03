@@ -1,0 +1,15 @@
+# Go build output
+*.exe
+*.test
+*.out
+
+# Runtime and service logs
+*.log
+logs/
+
+# Local editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
