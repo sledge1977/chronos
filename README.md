@@ -1,6 +1,6 @@
 # Chronos — Go Time Server
 
-Chronos is a small Go server that provides a responsive website displaying local time, UTC, and Unix time. It also answers NTPv3 and NTPv4 requests over UDP. The website shows the latest 200 NTP requests in real time, while a total counter tracks all requests since startup. Every request is also written to the regular service log. All web assets are embedded in the compiled executable.
+Chronos is a small Go server that answers NTPv3 and NTPv4 requests over UDP. It can optionally provide a responsive website displaying local time, UTC, and Unix time. The website shows the latest 200 NTP requests in real time, while a total counter tracks all requests since startup. Every request is also written to the regular service log. All web assets are embedded in the compiled executable.
 
 ## Run
 
@@ -10,8 +10,6 @@ Requires Go 1.22 or newer.
 go run .
 ```
 
-Then open <http://localhost:8080> in a browser.
-
 At startup, Chronos prints every local address at which the NTP server is available. It uses UDP port 123 by default, for example `127.0.0.1:123/udp`.
 
 Test it on Windows:
@@ -20,9 +18,17 @@ Test it on Windows:
 w32tm /stripchart /computer:127.0.0.1 /dataonly /samples:5
 ```
 
-Set a different web port if required:
+The web server is disabled by default. Enable it when required:
 
 ```powershell
+$env:WEB_ENABLED = "true"
+go run .
+```
+
+Then open <http://localhost:8080> in a browser. Set a different web port if required:
+
+```powershell
+$env:WEB_ENABLED = "true"
 $env:PORT = "9000"
 go run .
 ```
@@ -50,6 +56,8 @@ go run .
 Chronos does not modify the system clock and therefore does not claim synchronization unless explicitly configured.
 
 ## HTTP endpoints
+
+These endpoints are available only when `WEB_ENABLED` is set to `true`.
 
 - `/` — website
 - `/api/time` — current server time as JSON

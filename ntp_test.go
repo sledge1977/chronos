@@ -99,6 +99,29 @@ func TestConfiguredStratum(t *testing.T) {
 	}
 }
 
+func TestConfiguredWebEnabled(t *testing.T) {
+	for _, test := range []struct {
+		value string
+		want  bool
+		valid bool
+	}{
+		{"", false, true},
+		{"false", false, true},
+		{"true", true, true},
+		{"0", false, true},
+		{"1", true, true},
+		{"enabled", false, false},
+	} {
+		got, err := configuredWebEnabled(test.value)
+		if test.valid && (err != nil || got != test.want) {
+			t.Errorf("configuredWebEnabled(%q) = %t, %v; expected %t", test.value, got, err, test.want)
+		}
+		if !test.valid && err == nil {
+			t.Errorf("configuredWebEnabled(%q) accepted an invalid value", test.value)
+		}
+	}
+}
+
 func TestNTPRequestLogKeepsNewestEntries(t *testing.T) {
 	requestLog := newNTPRequestLog(2)
 	client := &net.UDPAddr{IP: net.ParseIP("192.0.2.10"), Port: 49152}

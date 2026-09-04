@@ -1,12 +1,13 @@
 <service>
   <id>ChronosTimeService</id>
   <name>Chronos Time Server</name>
-  <description>Provides the Chronos website and a local NTP time server.</description>
+  <description>Provides a local NTP time server and an optional Chronos website.</description>
 
   <executable>%BASE%\chronos.exe</executable>
   <workingdirectory>%BASE%</workingdirectory>
 
   <env name="PORT" value="8080"/>
+  <env name="WEB_ENABLED" value="false"/>
   <env name="NTP_ADDR" value=":123"/>
   <env name="NTP_STRATUM" value="15"/>
 

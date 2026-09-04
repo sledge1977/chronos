@@ -22,6 +22,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	webEnabled, err := configuredWebEnabled(os.Getenv("WEB_ENABLED"))
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	ntpConnection, err := net.ListenPacket("udp", ntpAddress)
 	if err != nil {
@@ -31,12 +35,21 @@ func main() {
 
 	clock := newNTPClock(ntpStratum)
 	requestLog := newNTPRequestLog(200)
+	logNTPReachability(ntpConnection.LocalAddr(), clock)
+
+	if !webEnabled {
+		log.Print("Web server is disabled")
+		if err := serveNTP(ntpConnection, clock, requestLog); err != nil {
+			log.Fatalf("NTP server stopped: %v", err)
+		}
+		return
+	}
+
 	go func() {
 		if err := serveNTP(ntpConnection, clock, requestLog); err != nil {
 			log.Fatalf("NTP server stopped: %v", err)
 		}
 	}()
-	logNTPReachability(ntpConnection.LocalAddr(), clock)
 
 	publicFiles, err := fs.Sub(webFiles, "web")
 	if err != nil {
@@ -85,6 +98,18 @@ func configuredStratum(value string) (uint8, error) {
 		return 0, errors.New("NTP_STRATUM must be an integer between 1 and 16")
 	}
 	return uint8(stratum), nil
+}
+
+func configuredWebEnabled(value string) (bool, error) {
+	if value == "" {
+		return false, nil
+	}
+
+	enabled, err := strconv.ParseBool(value)
+	if err != nil {
+		return false, errors.New("WEB_ENABLED must be a boolean")
+	}
+	return enabled, nil
 }
 
 func serveTime(w http.ResponseWriter, _ *http.Request) {
